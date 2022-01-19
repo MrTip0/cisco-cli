@@ -5,35 +5,55 @@ function extend($text) {
     # - commands: an array of commands
     # - regex: an array of regexes that are always good
     # - interfaces: an array of interface names that are used with n/n at the end
+    $level = 0;
     $commands = json_decode(file_get_contents('commands.json'), true);
     $lines = preg_split("/\r\n|\n|\r/", strtolower($text)); # convert to lowercase and split into lines
     for ($i=0; $i < count($lines); $i++) { 
-        $lines[$i] = line($lines[$i], $commands);
+        $lines[$i] = line($lines[$i], $commands, $level);
     }
     return implode("\n", $lines);
 }
 
-function line($text, $commands) {
+function line($text, $commands, &$level) {
     $words = explode(" ", $text); # Split text into words
     if (count($words) > 0) {
-        $words[0] = command($words[0], $commands);
+        $words[0] = command($words[0], $commands, $level);
+        if ($words[0] == "enable" || $words[0] == "configure") {
+            $level++;
+        } elseif ($words[0] == "exit" || $words[0] == "disable") {
+            $level--;
+            if ($level < 0) {
+                $level = 0;
+            }
+        }
     }
     for ($i=1; $i < count($words); $i++) { 
-        $words[$i] = word(str_replace(" ", "", $words[$i]), $commands);
+        $words[$i] = word(str_replace(" ", "", $words[$i]), $commands, $level);
     }
     return implode(" ", $words);
 }
 
-function command($text, $commands) {
+function commByLevel($commands, $level) {
+    if ($level == 0) {
+        return $commands["commands"]["disa"];
+    } elseif ($level == 1) {
+        return $commands["commands"]["ena"];
+    } else {
+        return $commands["commands"]["conf"];
+    }
+}
+
+function command($text, $commands, $level) {
     $l = strlen($text);
     $r = "";
     # for each command this checks if a commands start with the word, if more than one commands start with the word, it will return the word
-    for ($i=0; $i < count($commands["commands"]); $i++) {
-        if ($commands["commands"][$i] == $text) {
+    $toUse = commByLevel($commands, $level);
+    for ($i=0; $i < count($toUse); $i++) {
+        if ($toUse[$i] == $text) {
             return $text;
-        } else if(substr($commands["commands"][$i], 0, $l) == $text) {
+        } else if(substr($toUse[$i], 0, $l) == $text) {
             if ($r == "") {
-                $r = $commands["commands"][$i];
+                $r = $toUse[$i];
             } else {
                 return $text;
             }
