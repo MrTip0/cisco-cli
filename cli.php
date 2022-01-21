@@ -1,11 +1,12 @@
 <?php
 function extend($text) {
+    $level = 0;
     # get the commands from the json file
     # the file is a json object with 3 properties:
-    # - commands: an array of commands
-    # - regex: an array of regexes that are always good
+    # - commands: an object with three array of commands to be considered from the level
+    # - keywords: An array of keywords that are read from the second word of a line
+    # - regex: an array of regular expressions that are always good
     # - interfaces: an array of interface names that are used with n/n at the end
-    $level = 0;
     $commands = json_decode(file_get_contents('commands.json'), true);
     $lines = preg_split("/\r\n|\n|\r/", strtolower($text)); # convert to lowercase and split into lines
     for ($i=0; $i < count($lines); $i++) { 
