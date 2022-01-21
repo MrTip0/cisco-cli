@@ -75,7 +75,7 @@ function word($text, $commands) { # for each word
     $l = strlen($text);
     $r = "";
     # check if contains a number/number
-    if (preg_match("/([0-9][0-9]?\/[0-9][0-9]?)/", $text)) {
+    if (preg_match("/^([a-z]?){25}([0-9][0-9]?\/[0-9][0-9]?)$/", $text)) {
         # get index of number/number and divide the word in [interfaceName] and [number/number]
         $p = -1;
         if(preg_match("/([0-9][0-9]?\/[0-9][0-9]?)/", $text, $matches, PREG_OFFSET_CAPTURE)) {
